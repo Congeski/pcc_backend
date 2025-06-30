@@ -1,9 +1,194 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Aluno {
+  id                  String              @id @default(uuid())
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  data_de_ingresso    DateTime
+  nome_civil          String
+  ra                  String
+  email_institucional String
+  cpf                 String
+  nome_social         String?
+  senha               String?
+  curso_id            String?
+  email_pessoal       String?
+  qualificacao        Qualificacao
+  aluno_professor     AlunoProfessor[]
+  solicitacao_defesa  SolicitacaoDefesa[]
+
+  curso Curso? @relation(fields: [curso_id], references: [id])
+
+  @@map("aluno")
+}
+
+model Professor {
+  id                        String                      @id @default(uuid())
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  nome_civil                String
+  cpf                       String
+  email                     String
+  formacao_origem           String
+  area_atuacao              String?
+  senha                     String?
+  titulacao                 String?
+  nome_social               String?
+  telefone                  String?
+  curso_id                  String?
+  qualificacao              Qualificacao
+  pertence_uem              Boolean                     @default(true)
+  quantidade_orientandos    Int                         @default(0)
+  aluno_professor           AlunoProfessor[]
+  SolicitacaoBancaProfessor SolicitacaoBancaProfessor[]
+
+  curso Curso? @relation(fields: [curso_id], references: [id])
+
+  @@map("professor")
+}
+
+model Curso {
+  id                String           @id @default(uuid())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  linha_de_pesquisa String
+  duracao_curso     Int
+  carga_horario     BigInt
+  codigo_curso      BigInt
+  categoria         ModoApresentacao
+  tipo              Qualificacao
+  status            Boolean          @default(true)
+
+  alunos    Aluno[]
+  Professor Professor[]
+
+  @@map("curso")
+}
+
+model AlunoProfessor {
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  aluno_id     String
+  professor_id String
+  coorientador Boolean
+
+  aluno     Aluno     @relation(fields: [aluno_id], references: [id])
+  professor Professor @relation(fields: [professor_id], references: [id])
+
+  @@map("aluno_professor")
+}
+
+model Secretaria {
+  id                 String              @id @default(uuid())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  nome_civil         String
+  email              String
+  senha              String
+  cpf                String
+  acesso_admin       Boolean
+  nome_social        String?
+  solicitacao_defesa SolicitacaoDefesa[]
+
+  @@map("secretaria")
+}
+
+model SolicitacaoBancaProfessor {
+  id                 String              @id @default(uuid())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  professor_id       String
+  suplente           Boolean
+  copia_impressa     Boolean
+  solicitacao_defesa SolicitacaoDefesa[]
+
+  professor Professor @relation(fields: [professor_id], references: [id])
+
+  @@map("solicitacao_banca_professor")
+}
+
+model SolicitacaoDefesa {
+  id                   String            @id @default(uuid())
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  data_defesa          DateTime
+  horario_defesa       DateTime
+  secretaria_id        String
+  aluno_solicitante_id String
+  professor_banca_id   String
+  horario_apresentacao DateTime
+  email_aluno          String
+  titulo_trabalho      String
+  cidade               String?
+  bloco                String?
+  sala                 String?
+  link_remoto          String?
+  tipo_defesa          TipoDefesa
+  modalidade_defesa    ModoApresentacao
+  anexo                Anexo[]
+  status               StatusSolicitacao @default(PENDENTE)
+
+  secretaria        Secretaria                @relation(fields: [secretaria_id], references: [id])
+  aluno             Aluno                     @relation(fields: [aluno_solicitante_id], references: [id])
+  professores_banca SolicitacaoBancaProfessor @relation(fields: [professor_banca_id], references: [id])
+
+  @@map("solicitacao_defesa")
+}
+
+model Anexo {
+  id                    String    @id @default(uuid())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  solicitacao_defesa_id String
+  nome_arquivo          String
+  hash                  String
+  url                   String
+  tipo                  TipoAnexo
+
+  SolicitacaoDefesa SolicitacaoDefesa @relation(fields: [solicitacao_defesa_id], references: [id])
+
+  @@map("solicitacao_defesa_anexo")
+}
+
+enum Qualificacao {
+  MESTRADO
+  DOUTORADO
+}
+
+enum ModoApresentacao {
+  PRESENCIAL
+  REMOTO
+  HIBRIDO
+}
+
+enum TipoDefesa {
+  QUALIFICACAO_MESTRADO
+  QUALIFICACAO_DOUTORADO
+  DEFESA_DISSERTACAO_MESTRADO
+  DEFESA_TESE_DOUTORADO
+}
+
+enum StatusSolicitacao {
+  APROVADO
+  REPROVADO
+  PENDENTE
+}
+
+enum TipoAnexo {
+  TEXTO_TRABALHO
+  COMPROVANTE_PUBLICACAO
+  PROPOSTA_QUALIFICACAO
+  DISSERTACAO_FINAL
+  TESE_FINAL
+  AUTORIZACAO_ORIENTADOR
+  CURRICULO_LATTES_MEMBRO_EXTERNO
+  CURRICULO_LATTES_MEMBRO_ESTRANGEIRO
 }
