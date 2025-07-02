@@ -11,7 +11,7 @@ import {
   } from 'class-validator';
   import { AlunoProfessor, Qualificacao, SolicitacaoBancaProfessor } from '@prisma/client';
   import { Type } from 'class-transformer';
-export class CreateProfessoreDto {
+export class CreateProfessorDto {
     @IsString()
     @IsNotEmpty()
     nome_civil: string;
@@ -58,13 +58,7 @@ export class CreateProfessoreDto {
     qualificacao: Qualificacao;
 
     @IsBoolean()
-    pertence_uem: Boolean;
-
-
-    quantidade_orientandos: number;
-
-    aluno_professor: AlunoProfessor;
-    SolicitacaoBancaProfessor: SolicitacaoBancaProfessor;
+    pertence_uem: boolean;
 
 }
     
