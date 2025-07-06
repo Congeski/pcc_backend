@@ -11,43 +11,20 @@ import { Type } from 'class-transformer';
 
 export class CreateAlunoDto {
   @IsString()
-  @IsNotEmpty()
-  ra: string;
+  usuario_id: string;
 
-  @IsString()
   @IsOptional()
-  senha?: string;
-
   @IsEmail()
-  @IsNotEmpty()
-  email_institucional: string;
+  email_pessoal?: string | undefined;
 
-  @IsEmail()
   @IsOptional()
-  email_pessoal?: string;
-
   @IsString()
-  @IsNotEmpty()
-  nome_civil: string;
+  nome_social?: string | undefined;
 
-  @IsString()
   @IsOptional()
-  nome_social?: string;
-
   @IsString()
-  @IsNotEmpty()
-  cpf: string;
+  cpf?: string | undefined;
 
   @IsEnum(Qualificacao)
-  @IsNotEmpty()
   qualificacao: Qualificacao;
-
-  @Type(() => Date)
-  @IsDate()
-  @IsNotEmpty()
-  data_de_ingresso: Date;
-
-  @IsString()
-  @IsOptional()
-  curso_id?: string;
 }

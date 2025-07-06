@@ -1,12 +1,12 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  NotFoundException,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post
 } from '@nestjs/common';
 import { AlunoService } from './aluno.service';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
@@ -17,51 +17,33 @@ export class AlunoController {
   constructor(private readonly alunoService: AlunoService) {}
 
   @Post()
-  create(@Body() createAlunoDto: CreateAlunoDto) {
-    return this.alunoService.create(createAlunoDto);
+  async create(@Body() createAlunoDto: CreateAlunoDto) {
+    return await this.alunoService.create(createAlunoDto);
   }
 
   @Get()
-  findAll() {
-    return this.alunoService.findAll();
+  @HttpCode(200)
+  async findAll() {
+    return await this.alunoService.findAll();
   }
 
   @Get(':id')
+  @HttpCode(200)
   async findOne(@Param('id') id: string) {
-    try {
-      return await this.alunoService.findOne(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
+    return await this.alunoService.findOne(id);
   }
 
   @Patch(':id')
+  @HttpCode(200)
   async update(
     @Param('id') id: string,
     @Body() updateAlunoDto: UpdateAlunoDto,
   ) {
-    try {
-      return await this.alunoService.update(id, updateAlunoDto);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
+    return await this.alunoService.update(id, updateAlunoDto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    try {
-      return await this.alunoService.remove(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
+    return await this.alunoService.remove(id);
   }
 }
