@@ -7,24 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Aluno {
-  id                  String              @id @default(uuid())
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  data_de_ingresso    DateTime
-  nome_civil          String
-  ra                  String
-  email_institucional String
-  cpf                 String
-  nome_social         String?
-  senha               String?
-  curso_id            String?
-  email_pessoal       String?
-  qualificacao        Qualificacao
-  aluno_professor     AlunoProfessor[]
-  solicitacao_defesa  SolicitacaoDefesa[]
+model Usuario {
+  id           String      @id @default(uuid())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  status       Boolean     @default(true)
+  email        String      @unique
+  secretariaId String
+  senha        String
+  nome_civil   String
+  tipo_usuario TipoUsuario
+  ultimo_login DateTime?
+  professor    Professor?
+  aluno        Aluno?
+  secretaria   Secretaria  @relation(fields: [secretariaId], references: [id])
 
-  curso Curso? @relation(fields: [curso_id], references: [id])
+  @@map("usuario")
+}
+
+model Secretaria {
+  id                     String                 @id @default(uuid())
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  acesso_admin           Boolean
+  cpf                    String?
+  nome_social            String?
+  usuario                Usuario[]
+  solicitacao_defesa     SolicitacaoDefesa[]
+  programa_pos_graduacao ProgramaPosGraduacao[]
+
+  @@map("secretaria")
+}
+
+model Aluno {
+  id                        String                @id @default(uuid())
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  usuario_id                String                @unique
+  qualificacao              Qualificacao
+  programa_pos_graduacao_id String?
+  email_pessoal             String?
+  cpf                       String?
+  nome_social               String?
+  data_de_ingresso          DateTime?
+  aluno_professor           AlunoProfessor[]
+  solicitacao_defesa        SolicitacaoDefesa[]
+  usuario                   Usuario               @relation(fields: [usuario_id], references: [id])
+  programa_pos_graduacao    ProgramaPosGraduacao? @relation(fields: [programa_pos_graduacao_id], references: [id])
 
   @@map("aluno")
 }
@@ -33,72 +62,55 @@ model Professor {
   id                        String                      @id @default(uuid())
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime                    @updatedAt
-  nome_civil                String
-  cpf                       String
-  email                     String
-  formacao_origem           String
+  pertence_uem              Boolean                     @default(true)
+  usuario_id                String                      @unique
+  qualificacao              Qualificacao
+  cpf                       String?
+  formacao_origem           String?
   area_atuacao              String?
-  senha                     String?
   titulacao                 String?
   nome_social               String?
   telefone                  String?
-  curso_id                  String?
-  qualificacao              Qualificacao
-  pertence_uem              Boolean                     @default(true)
-  quantidade_orientandos    Int                         @default(0)
+  programa_pos_graduacao_id String?
   aluno_professor           AlunoProfessor[]
   SolicitacaoBancaProfessor SolicitacaoBancaProfessor[]
-
-  curso Curso? @relation(fields: [curso_id], references: [id])
+  usuario                   Usuario                     @relation(fields: [usuario_id], references: [id])
+  programa_pos_graduacao    ProgramaPosGraduacao?       @relation(fields: [programa_pos_graduacao_id], references: [id])
 
   @@map("professor")
 }
 
-model Curso {
+model ProgramaPosGraduacao {
   id                String           @id @default(uuid())
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
-  linha_de_pesquisa String
-  duracao_curso     Int
-  carga_horario     BigInt
-  codigo_curso      BigInt
-  categoria         ModoApresentacao
-  tipo              Qualificacao
   status            Boolean          @default(true)
+  tipo              Qualificacao
+  categoria         ModoApresentacao
+  codigo            BigInt
+  linha_de_pesquisa String
+  curso             String
+  cidade            String
+  departamento      String?
+  secretaria_id     String
+  alunos            Aluno[]
+  professores       Professor[]
+  secretaria        Secretaria       @relation(fields: [secretaria_id], references: [id])
 
-  alunos    Aluno[]
-  Professor Professor[]
-
-  @@map("curso")
+  @@map("programa_pos_graduacao")
 }
 
 model AlunoProfessor {
-  id           String   @id @default(uuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id           String    @id @default(uuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   aluno_id     String
   professor_id String
   coorientador Boolean
-
-  aluno     Aluno     @relation(fields: [aluno_id], references: [id])
-  professor Professor @relation(fields: [professor_id], references: [id])
+  aluno        Aluno     @relation(fields: [aluno_id], references: [id])
+  professor    Professor @relation(fields: [professor_id], references: [id])
 
   @@map("aluno_professor")
-}
-
-model Secretaria {
-  id                 String              @id @default(uuid())
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  nome_civil         String
-  email              String
-  senha              String
-  cpf                String
-  acesso_admin       Boolean
-  nome_social        String?
-  solicitacao_defesa SolicitacaoDefesa[]
-
-  @@map("secretaria")
 }
 
 model SolicitacaoBancaProfessor {
@@ -109,53 +121,54 @@ model SolicitacaoBancaProfessor {
   suplente           Boolean
   copia_impressa     Boolean
   solicitacao_defesa SolicitacaoDefesa[]
-
-  professor Professor @relation(fields: [professor_id], references: [id])
+  professor          Professor           @relation(fields: [professor_id], references: [id])
 
   @@map("solicitacao_banca_professor")
 }
 
 model SolicitacaoDefesa {
-  id                   String            @id @default(uuid())
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  id                   String                    @id @default(uuid())
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  modalidade_defesa    ModoApresentacao
   data_defesa          DateTime
   horario_defesa       DateTime
   secretaria_id        String
   aluno_solicitante_id String
   professor_banca_id   String
-  horario_apresentacao DateTime
-  email_aluno          String
   titulo_trabalho      String
   cidade               String?
   bloco                String?
   sala                 String?
   link_remoto          String?
   tipo_defesa          TipoDefesa
-  modalidade_defesa    ModoApresentacao
   anexo                Anexo[]
-  status               StatusSolicitacao @default(PENDENTE)
-
-  secretaria        Secretaria                @relation(fields: [secretaria_id], references: [id])
-  aluno             Aluno                     @relation(fields: [aluno_solicitante_id], references: [id])
-  professores_banca SolicitacaoBancaProfessor @relation(fields: [professor_banca_id], references: [id])
+  status               StatusSolicitacao         @default(PENDENTE)
+  secretaria           Secretaria                @relation(fields: [secretaria_id], references: [id])
+  aluno                Aluno                     @relation(fields: [aluno_solicitante_id], references: [id])
+  professores_banca    SolicitacaoBancaProfessor @relation(fields: [professor_banca_id], references: [id])
 
   @@map("solicitacao_defesa")
 }
 
 model Anexo {
-  id                    String    @id @default(uuid())
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id                    String            @id @default(uuid())
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
   solicitacao_defesa_id String
   nome_arquivo          String
   hash                  String
   url                   String
   tipo                  TipoAnexo
-
-  SolicitacaoDefesa SolicitacaoDefesa @relation(fields: [solicitacao_defesa_id], references: [id])
+  solicitacao_defesa    SolicitacaoDefesa @relation(fields: [solicitacao_defesa_id], references: [id])
 
   @@map("solicitacao_defesa_anexo")
+}
+
+enum TipoUsuario {
+  PROFESSOR
+  ALUNO
+  SECRETARIA
 }
 
 enum Qualificacao {
