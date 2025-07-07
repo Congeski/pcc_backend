@@ -27,7 +27,7 @@ export class AuthController {
     @Param('email_institucional') email_institucional: string,
     @Body('senha') senha: string,
   ) {
-    return this.authService.createPassword(email_institucional, senha);
+    return await this.authService.createPassword(email_institucional, senha);
   }
 
   @Post('login/:email_institucional')
@@ -36,6 +36,6 @@ export class AuthController {
     @Param('email_institucional') email_institucional: string,
     @Body('senha') senha: string,
   ) {
-    return this.authService.login(email_institucional, senha);
+    return await this.authService.login(email_institucional, senha);
   }
 }
