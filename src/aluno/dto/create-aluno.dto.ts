@@ -1,18 +1,15 @@
-import {
-  IsString,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsDate,
-  IsEnum,
-} from 'class-validator';
 import { Qualificacao } from '@prisma/client';
-import { Type } from 'class-transformer';
+import {
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  isString,
+  IsString
+} from 'class-validator';
 
 export class CreateAlunoDto {
-  @IsString()
-  usuario_id: string;
-
+  
   @IsOptional()
   @IsEmail()
   email_pessoal?: string | undefined;
@@ -27,4 +24,27 @@ export class CreateAlunoDto {
 
   @IsEnum(Qualificacao)
   qualificacao: Qualificacao;
+
+  @IsOptional()
+  @IsString()
+  ra?: string | undefined;
+
+  @IsOptional()
+  @IsString()
+  celular?: string | undefined;
+
+  @IsString()
+  email_institucional: string;
+
+  @IsString()
+  nome_civil: string;
+
+  @IsOptional()
+  @IsDate()
+  data_de_ingresso?: Date | undefined;
+
+  @IsOptional()
+  @IsString()
+  senha?: string | undefined;
+
 }
