@@ -8,19 +8,16 @@ datasource db {
 }
 
 model Usuario {
-  id           String      @id @default(uuid())
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  status       Boolean     @default(true)
-  email        String      @unique
-  secretariaId String
-  senha        String
-  nome_civil   String
-  tipo_usuario TipoUsuario
-  ultimo_login DateTime?
-  professor    Professor?
-  aluno        Aluno?
-  secretaria   Secretaria  @relation(fields: [secretariaId], references: [id])
+  id                  String      @id @default(uuid())
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  status              Boolean     @default(true)
+  email_institucional String      @unique
+  nome_civil          String
+  senha               String?
+  professor           Professor?
+  secretaria          Secretaria?
+  aluno               Aluno?
 
   @@map("usuario")
 }
@@ -29,12 +26,15 @@ model Secretaria {
   id                     String                 @id @default(uuid())
   createdAt              DateTime               @default(now())
   updatedAt              DateTime               @updatedAt
+  usuario_id             String                 @unique
   acesso_admin           Boolean
+  email_pessoal          String?
+  celular                String?
   cpf                    String?
   nome_social            String?
-  usuario                Usuario[]
   solicitacao_defesa     SolicitacaoDefesa[]
   programa_pos_graduacao ProgramaPosGraduacao[]
+  usuario                Usuario                @relation(fields: [usuario_id], references: [id])
 
   @@map("secretaria")
 }
@@ -45,10 +45,12 @@ model Aluno {
   updatedAt                 DateTime              @updatedAt
   usuario_id                String                @unique
   qualificacao              Qualificacao
+  ra                        String?
   programa_pos_graduacao_id String?
   email_pessoal             String?
   cpf                       String?
   nome_social               String?
+  celular                   String?
   data_de_ingresso          DateTime?
   aluno_professor           AlunoProfessor[]
   solicitacao_defesa        SolicitacaoDefesa[]
@@ -63,18 +65,18 @@ model Professor {
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime                    @updatedAt
   pertence_uem              Boolean                     @default(true)
-  usuario_id                String                      @unique
+  usuario_id                String?                     @unique
   qualificacao              Qualificacao
   cpf                       String?
   formacao_origem           String?
   area_atuacao              String?
   titulacao                 String?
   nome_social               String?
-  telefone                  String?
+  celular                   String?
   programa_pos_graduacao_id String?
   aluno_professor           AlunoProfessor[]
   SolicitacaoBancaProfessor SolicitacaoBancaProfessor[]
-  usuario                   Usuario                     @relation(fields: [usuario_id], references: [id])
+  usuario                   Usuario?                    @relation(fields: [usuario_id], references: [id])
   programa_pos_graduacao    ProgramaPosGraduacao?       @relation(fields: [programa_pos_graduacao_id], references: [id])
 
   @@map("professor")
@@ -90,7 +92,7 @@ model ProgramaPosGraduacao {
   codigo            BigInt
   linha_de_pesquisa String
   curso             String
-  cidade            String
+  cidade            String?
   departamento      String?
   secretaria_id     String
   alunos            Aluno[]
@@ -163,12 +165,6 @@ model Anexo {
   solicitacao_defesa    SolicitacaoDefesa @relation(fields: [solicitacao_defesa_id], references: [id])
 
   @@map("solicitacao_defesa_anexo")
-}
-
-enum TipoUsuario {
-  PROFESSOR
-  ALUNO
-  SECRETARIA
 }
 
 enum Qualificacao {
