@@ -6,11 +6,13 @@ import {
   HttpCode,
   Param,
   Patch,
-  Post
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AlunoService } from './aluno.service';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('aluno')
 export class AlunoController {
@@ -21,18 +23,21 @@ export class AlunoController {
     return await this.alunoService.create(createAlunoDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @HttpCode(200)
   async findAll() {
     return await this.alunoService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @HttpCode(200)
   async findOne(@Param('id') id: string) {
     return await this.alunoService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @HttpCode(200)
   async update(
@@ -42,6 +47,7 @@ export class AlunoController {
     return await this.alunoService.update(id, updateAlunoDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.alunoService.remove(id);

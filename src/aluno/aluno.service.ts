@@ -76,6 +76,10 @@ export class AlunoService {
   }
 
   async update(id: string, updateAlunoDto: UpdateAlunoDto): Promise<object> {
+    console.log('DTO RECEBIDO NO SERVIÇO:', updateAlunoDto);
+
+    console.log('--- INICIANDO UPDATE ---');
+    console.log('DTO RECEBIDO:', JSON.stringify(updateAlunoDto, null, 2));
     const aluno = await this.prisma.usuario.findFirst({
       where: { id },
     });

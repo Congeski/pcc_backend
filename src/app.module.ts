@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AlunoModule } from './aluno/aluno.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [AlunoModule],
+  imports: [AlunoModule, ConfigModule.forRoot({isGlobal: true})],
   controllers: [AppController],
   providers: [AppService],
 })
