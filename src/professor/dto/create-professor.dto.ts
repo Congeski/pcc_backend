@@ -9,56 +9,49 @@ import {
     IsBoolean,
     isInt,
   } from 'class-validator';
-  import { AlunoProfessor, Qualificacao, SolicitacaoBancaProfessor } from '@prisma/client';
+  import {  Qualificacao, ProgramaPosGraduacao, Usuario } from '@prisma/client';
   import { Type } from 'class-transformer';
 export class CreateProfessorDto {
     @IsString()
-    @IsNotEmpty()
-    nome_civil: string;
-
-    @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     cpf: string;
 
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-
     @IsString()
-    @IsNotEmpty()
-    formacao_origem: string;
-
+    @IsOptional()
+    titulacao:string;
 
     @IsString()
     @IsOptional()
     area_atuacao: string;
 
-    @IsString()
+    @IsBoolean({message:"Informe se o professor pertence a UEM."})
     @IsNotEmpty()
-    senha: string;
+    pertence_uem: boolean;
 
     @IsString()
-    @IsNotEmpty()
-    titulacao:string;
+    @IsOptional()
+    formacao_origem: string;
     
     @IsString()
     @IsOptional()
     nome_social:string;
 
     @IsString()
-    @IsOptional()
-    telefone:string;
-
-    @IsString()
-    @IsOptional()
-    curso_id: string;  
-
-    @IsString()
-    @IsOptional()
+    @IsNotEmpty({message:"Informe a qualificação do professor."})
     qualificacao: Qualificacao;
 
-    @IsBoolean()
-    pertence_uem: boolean;
+    @IsString()
+    @IsOptional()  
+    programa_pos_graduacao_id: string;
 
+    @IsString()
+    @IsOptional()
+    usuario_id: string;
+
+    @IsString()
+    @IsOptional()
+    celular:string;
+
+    
 }
     
