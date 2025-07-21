@@ -22,7 +22,17 @@ export class AlunoService {
     if (email_existe) {
       throw new BadRequestException('Esse email já foi cadastrado!');
     }
-    const ra_regex = createAlunoDto.email_institucional.split('@')[0];
+
+    const localPart = createAlunoDto.email_institucional.split('@')[0];
+    let ra: string | null = null;
+
+    if (localPart.toLowerCase().startsWith('ra')) {
+      const numericPart = localPart.substring(2);
+      if (/^\d+$/.test(numericPart)) {
+        ra = numericPart;
+      }
+    }
+
     try {
       await this.prisma.usuario.create({
         data: {
@@ -31,7 +41,7 @@ export class AlunoService {
           aluno: {
             create: {
               qualificacao: createAlunoDto.qualificacao,
-              ra: ra_regex,
+              ra: ra,
               email_pessoal: createAlunoDto.email_pessoal,
               cpf: createAlunoDto.cpf,
               data_de_ingresso: createAlunoDto.data_de_ingresso,
@@ -76,10 +86,7 @@ export class AlunoService {
   }
 
   async update(id: string, updateAlunoDto: UpdateAlunoDto): Promise<object> {
-    console.log('DTO RECEBIDO NO SERVIÇO:', updateAlunoDto);
-
-    console.log('--- INICIANDO UPDATE ---');
-    console.log('DTO RECEBIDO:', JSON.stringify(updateAlunoDto, null, 2));
+    
     const aluno = await this.prisma.usuario.findFirst({
       where: { id },
     });
