@@ -1,6 +1,5 @@
-// src/solicitacao-defesa/dto/create-solicitacao-defesa.dto.ts
-import { IsUUID, IsString, IsDateString, IsEnum, IsArray, IsOptional, isString, IsBoolean } from 'class-validator';
-import { TipoDefesa, ModoApresentacao } from '@prisma/client';
+import { ModoApresentacao, TipoDefesa } from '@prisma/client';
+import { IsArray, IsBoolean, IsDateString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateSolicitacaoDefesaDto {
   @IsEnum(ModoApresentacao)
@@ -58,7 +57,7 @@ export class CreateSolicitacaoDefesaDto {
   }[];
 
   @IsString()
-  secretaria_id?: string; // Optional, can be derived from aluno
+  secretaria_id?: string;
 }
 
 class ProfessorBancaDto {

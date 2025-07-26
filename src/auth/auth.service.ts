@@ -7,6 +7,11 @@ import { promisify } from 'util';
 
 const scryptAsync = promisify(crypto.scrypt);
 
+export interface UserAccess{
+  accessToken: string; 
+  usuario_id: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -49,7 +54,7 @@ export class AuthService {
   async login(
     email: string,
     password: string,
-  ): Promise<{ accessToken: string; usuario_id: string }> {
+  ): Promise<UserAccess> {
     const usuario = await this.prisma.usuario.findUnique({
       where: { email_institucional: email },
     });
