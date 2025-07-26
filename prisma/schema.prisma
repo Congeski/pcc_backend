@@ -116,28 +116,28 @@ model AlunoProfessor {
 }
 
 model SolicitacaoBancaProfessor {
-  id                 String              @id @default(uuid())
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  professor_id       String
-  suplente           Boolean
-  copia_impressa     Boolean
-  solicitacao_defesa SolicitacaoDefesa[]
-  professor          Professor           @relation(fields: [professor_id], references: [id])
+  id                    String            @id @default(uuid())
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  solicitacao_defesa_id String
+  professor_id          String
+  suplente              Boolean
+  copia_impressa        Boolean
+  solicitacao_defesa    SolicitacaoDefesa @relation(fields: [solicitacao_defesa_id], references: [id])
+  professor             Professor         @relation(fields: [professor_id], references: [id])
 
   @@map("solicitacao_banca_professor")
 }
 
 model SolicitacaoDefesa {
-  id                   String                    @id @default(uuid())
-  createdAt            DateTime                  @default(now())
-  updatedAt            DateTime                  @updatedAt
+  id                   String                      @id @default(uuid())
+  createdAt            DateTime                    @default(now())
+  updatedAt            DateTime                    @updatedAt
   modalidade_defesa    ModoApresentacao
   data_defesa          DateTime
   horario_defesa       DateTime
   secretaria_id        String
   aluno_solicitante_id String
-  professor_banca_id   String
   titulo_trabalho      String
   cidade               String?
   bloco                String?
@@ -145,10 +145,10 @@ model SolicitacaoDefesa {
   link_remoto          String?
   tipo_defesa          TipoDefesa
   anexo                Anexo[]
-  status               StatusSolicitacao         @default(PENDENTE)
-  secretaria           Secretaria                @relation(fields: [secretaria_id], references: [id])
-  aluno                Aluno                     @relation(fields: [aluno_solicitante_id], references: [id])
-  professores_banca    SolicitacaoBancaProfessor @relation(fields: [professor_banca_id], references: [id])
+  professores_banca    SolicitacaoBancaProfessor[]
+  status               StatusSolicitacao           @default(PENDENTE)
+  secretaria           Secretaria                  @relation(fields: [secretaria_id], references: [id])
+  aluno                Aluno                       @relation(fields: [aluno_solicitante_id], references: [id])
 
   @@map("solicitacao_defesa")
 }
