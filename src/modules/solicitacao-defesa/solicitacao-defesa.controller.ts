@@ -1,15 +1,19 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
+  Param,
   Post,
-  Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UsuarioIdFromToken } from 'src/decorators/usuarioId.decorator';
 import { CreateSolicitacaoDefesaDto } from './dto/create-solicitacao-defesa.dto';
 import { SolicitacaoDefesaService } from './solicitacao-defesa.service';
-import { UserAccess } from 'src/auth/auth.service';
 
 @Controller('solicitacao-defesa')
 export class SolicitacaoDefesaController {
@@ -18,11 +22,26 @@ export class SolicitacaoDefesaController {
   @UseGuards(JwtAuthGuard)
   @Post()
   @HttpCode(201)
+  @UseInterceptors(FilesInterceptor('pdf'))
   async create(
-    @Req() req: UserAccess,
+    @UploadedFiles() pdf: Express.Multer.File[],
+    @UsuarioIdFromToken() usuarioId: string,
     @Body() dto: CreateSolicitacaoDefesaDto,
   ) {
-    const userId = req.usuario_id;
-    return this.service.create(userId, dto);
+    return this.service.createSolicitacaoDefesa(usuarioId, dto, pdf);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  @HttpCode(200)
+  async getAllSolicitacaoDefesa(@UsuarioIdFromToken() usuarioId: string) {
+    return this.service.getAllSolicitacaoDefesa(usuarioId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:id')
+  @HttpCode(200)
+  async getSolicitacaoDefesa(@Param('id') solicitacaoId: string) {
+    return this.service.getSolicitacaoDefesa(solicitacaoId);
   }
 }

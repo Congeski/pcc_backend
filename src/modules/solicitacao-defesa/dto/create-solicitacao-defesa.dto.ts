@@ -1,5 +1,15 @@
-import { ModoApresentacao, TipoDefesa } from '@prisma/client';
-import { IsArray, IsBoolean, IsDateString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ModoApresentacao, TipoAnexo, TipoDefesa } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateSolicitacaoDefesaDto {
   @IsEnum(ModoApresentacao)
@@ -17,64 +27,80 @@ export class CreateSolicitacaoDefesaDto {
   @IsEnum(TipoDefesa)
   tipo_defesa: TipoDefesa;
 
-  @IsUUID()
-  professor_orientador_id: string;
-
-  @IsUUID()
-  professor_coorientador1_id: string;
-
-  @IsUUID()
-  professor_coorientador2_id: string;
-
   @IsArray()
-  professores_banca_examinadora: ProfessorBancaDto[];
-  
-  @IsArray()
-  professores_membros_externos: ProfessorMembroExternoBancaDto[];
+  @ValidateNested({ each: true })
+  @Type(() => ProfessorBancaDto)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
+  professores_banca: ProfessorBancaDto[];
 
-  @IsString()
   @IsOptional()
+  @IsString()
   cidade?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   bloco?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   sala?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   link_remoto?: string;
 
   @IsArray()
-  anexos: {
-    nome_arquivo: string;
-    hash: string;
-    url: string;
-    tipo: string;
-  }[];
+  @ValidateNested({ each: true })
+  @Type(() => Anexos)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value || [];
+  })
+  anexo: Anexos[];
 
-  @IsString()
-  secretaria_id?: string;
+  @IsUUID()
+  secretaria_id: string;
 }
 
 class ProfessorBancaDto {
   @IsUUID()
-  id: string;
+  professor_id: string;
 
   @IsBoolean()
-  eh_suplente: boolean;
+  suplente: boolean;
 
   @IsBoolean()
   copia_impressa: boolean;
 }
 
-class ProfessorMembroExternoBancaDto {
-  @IsString()
-  nome: string;
+class Anexos {
+  @IsUUID()
+  solicitacao_defesa_id: string;
 
   @IsString()
-  email: string;
+  nome_arquivo: string;
+
+  @IsString()
+  hash: string;
+
+  @IsString()
+  url: string;
+
+  @IsEnum(TipoAnexo)
+  tipo: TipoAnexo;
 }
