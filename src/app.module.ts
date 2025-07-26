@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ProfessorModule } from './professor/professor.module';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { AlunoModule } from './aluno/aluno.module';
-
+import { AuthModule } from './auth/auth.module';
+import { AlunoModule } from './modules/aluno/aluno.module';
+import { ProfessorModule } from './modules/professor/professor.module';
 
 @Module({
-  imports: [AlunoModule,ProfessorModule, AuthModule,ConfigModule.forRoot({isGlobal:true})],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    AlunoModule,
+    ProfessorModule,
+    AuthModule,
+  ],
 })
 export class AppModule {}

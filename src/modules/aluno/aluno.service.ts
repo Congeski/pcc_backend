@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Aluno, Usuario } from '@prisma/client';
-import { PrismaService } from '../service/prisma.service';
+import { Aluno } from '@prisma/client';
+import { PrismaService } from 'src/service/prisma.service';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 
