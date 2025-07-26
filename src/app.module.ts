@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { AlunoModule } from './modules/aluno/aluno.module';
 import { ProfessorModule } from './modules/professor/professor.module';
 import { SolicitacaoDefesaModule } from './modules/solicitacao-defesa/solicitacao-defesa.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { SolicitacaoDefesaModule } from './modules/solicitacao-defesa/solicitaca
     AlunoModule,
     ProfessorModule,
     SolicitacaoDefesaModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
