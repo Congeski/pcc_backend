@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AlunoService } from './aluno.service';
+import { AuthModule } from 'src/auth/auth.module';
+import { PrismaService } from 'src/service/prisma.service';
 import { AlunoController } from './aluno.controller';
-import { PrismaService } from '../service/prisma.service';
-import { AuthModule } from 'src/auth/auth.module'; 
+import { AlunoService } from './aluno.service';
 
 @Module({
   imports: [AuthModule],
