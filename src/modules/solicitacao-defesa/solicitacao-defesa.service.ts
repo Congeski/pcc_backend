@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/service/prisma.service';
 import { CreateSolicitacaoDefesaDto } from './dto/create-solicitacao-defesa.dto';
-import { SolicitacaoDefesa } from '@prisma/client';
+import { SolicitacaoDefesa, StatusSolicitacao } from '@prisma/client';
 import { UploadService } from 'src/service/upload.service';
 
 @Injectable()
@@ -135,6 +135,24 @@ export class SolicitacaoDefesaService {
       include: {
         anexo: true,
       },
+    });
+  }
+
+  async aprovarRejeitarSolicitacao(
+    solicitacaoId: string,
+    status: StatusSolicitacao,
+  ): Promise<SolicitacaoDefesa> {
+    const solicitacao = await this.prisma.solicitacaoDefesa.findUnique({
+      where: { id: solicitacaoId },
+    });
+
+    if (!solicitacao) {
+      throw new NotFoundException('Solicitação de defesa não encontrada');
+    }
+
+    return this.prisma.solicitacaoDefesa.update({
+      where: { id: solicitacaoId },
+      data: { status },
     });
   }
 }

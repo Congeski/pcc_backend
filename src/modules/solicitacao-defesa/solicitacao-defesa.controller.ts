@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   UploadedFiles,
   UseGuards,
@@ -14,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsuarioIdFromToken } from 'src/decorators/usuarioId.decorator';
 import { CreateSolicitacaoDefesaDto } from './dto/create-solicitacao-defesa.dto';
 import { SolicitacaoDefesaService } from './solicitacao-defesa.service';
+import { StatusSolicitacao } from '@prisma/client';
 
 @Controller('solicitacao-defesa')
 export class SolicitacaoDefesaController {
@@ -43,5 +45,15 @@ export class SolicitacaoDefesaController {
   @HttpCode(200)
   async getSolicitacaoDefesa(@Param('id') solicitacaoId: string) {
     return this.service.getSolicitacaoDefesa(solicitacaoId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/alterar-status/:id')
+  @HttpCode(200)
+  async alterarStatusSolicitacaoDefesa(
+    @Param('id') solicitacaoId: string,
+    @Body('status') status: StatusSolicitacao,
+  ) {
+    return this.service.aprovarRejeitarSolicitacao(solicitacaoId, status);
   }
 }
