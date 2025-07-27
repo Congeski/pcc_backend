@@ -141,6 +141,7 @@ export class SolicitacaoDefesaService {
   async aprovarRejeitarSolicitacao(
     solicitacaoId: string,
     status: StatusSolicitacao,
+    justificativa?: string,
   ): Promise<SolicitacaoDefesa> {
     const solicitacao = await this.prisma.solicitacaoDefesa.findUnique({
       where: { id: solicitacaoId },
@@ -149,10 +150,9 @@ export class SolicitacaoDefesaService {
     if (!solicitacao) {
       throw new NotFoundException('Solicitação de defesa não encontrada');
     }
-
     return this.prisma.solicitacaoDefesa.update({
       where: { id: solicitacaoId },
-      data: { status },
+      data: { status, justificativa: justificativa || null },
     });
   }
 }

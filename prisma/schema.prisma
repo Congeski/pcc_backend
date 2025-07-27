@@ -143,6 +143,7 @@ model SolicitacaoDefesa {
   bloco                String?
   sala                 String?
   link_remoto          String?
+  justificativa        String?
   tipo_defesa          TipoDefesa
   anexo                Anexo[]
   professores_banca    SolicitacaoBancaProfessor[]

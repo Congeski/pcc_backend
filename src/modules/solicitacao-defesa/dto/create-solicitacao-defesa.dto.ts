@@ -1,4 +1,4 @@
-import { ModoApresentacao, TipoAnexo, TipoDefesa } from '@prisma/client';
+import { ModoApresentacao, StatusSolicitacao, TipoAnexo, TipoDefesa } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
@@ -53,6 +53,14 @@ export class CreateSolicitacaoDefesaDto {
   @IsOptional()
   @IsString()
   sala?: string;
+
+  @IsOptional()
+  @IsString()
+  justificativa?: string;
+
+  @IsOptional()
+  @IsEnum(StatusSolicitacao)
+  status?: StatusSolicitacao;
 
   @IsOptional()
   @IsString()

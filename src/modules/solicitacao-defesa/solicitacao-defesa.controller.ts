@@ -53,7 +53,12 @@ export class SolicitacaoDefesaController {
   async alterarStatusSolicitacaoDefesa(
     @Param('id') solicitacaoId: string,
     @Body('status') status: StatusSolicitacao,
+    @Body('justificativa') justificativa?: string,
   ) {
-    return this.service.aprovarRejeitarSolicitacao(solicitacaoId, status);
+    return this.service.aprovarRejeitarSolicitacao(
+      solicitacaoId,
+      status,
+      justificativa,
+    );
   }
 }
