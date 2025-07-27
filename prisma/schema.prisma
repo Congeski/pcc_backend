@@ -190,6 +190,7 @@ enum StatusSolicitacao {
   APROVADO
   REPROVADO
   PENDENTE
+  APROVADO_PELO_CONSELHO
 }
 
 enum TipoAnexo {

@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "StatusSolicitacao" ADD VALUE 'APROVADO_PELO_CONSELHO';
