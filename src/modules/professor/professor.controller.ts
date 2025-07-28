@@ -93,4 +93,15 @@ export class ProfessorController {
       throw error;
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(201)
+  @Post('/membro-externo')
+  async createMembroExterno(@Body() createProfessoreDto: CreateProfessorDto) {
+    try {
+      return await this.professoresService.createMembroExterno(createProfessoreDto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
 }

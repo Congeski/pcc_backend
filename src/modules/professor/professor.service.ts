@@ -31,7 +31,7 @@ export class ProfessorService {
               nome_social: createProfessorDto.nome_social,
               titulacao: createProfessorDto.titulacao,
               celular: createProfessorDto.celular,
-              area_atuacao: createProfessorDto.area_atuacao,
+              area_atuacao: createProfessorDto.area_atuacao
             },
           },
         },
@@ -74,5 +74,40 @@ export class ProfessorService {
       throw new NotFoundException(`Professor com ID "${id}" não encontrado`);
     }
     return this.prisma.professor.delete({ where: { id } });
+  }
+
+  async createMembroExterno(createProfessorDto: CreateProfessorDto): Promise<HttpStatus> {
+    
+    const professor_existe = await this.prisma.professor.findFirst({
+      where: {
+        email_membro_externo: createProfessorDto.email,
+      },
+    });
+    
+    if (!professor_existe) {
+      createProfessorDto.pertence_uem = false;
+      
+      try {
+        await this.prisma.professor.create({
+          data: {
+                qualificacao: createProfessorDto.qualificacao,
+                cpf: createProfessorDto.cpf,
+                formacao_origem: createProfessorDto.formacao_origem,
+                nome_social: createProfessorDto.nome_social,
+                titulacao: createProfessorDto.titulacao,
+                celular: createProfessorDto.celular,
+                area_atuacao: createProfessorDto.area_atuacao,
+                pertence_uem: createProfessorDto.pertence_uem,
+                email_membro_externo: createProfessorDto.email,
+          },
+        });
+
+        return HttpStatus.CREATED;
+      } catch (error) {
+        throw new NotFoundException(`Erro ao criar membro externo: ${error.message}`);
+      }
+   } 
+   
+   throw new BadRequestException('Já existe um membro externo com esse email cadastrado!');
   }
 }
