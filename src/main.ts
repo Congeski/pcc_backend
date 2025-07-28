@@ -4,6 +4,10 @@ import { ValidationPipe } from '@nestjs/common';
 
 const PORT = process.env.PORT || 3333;
 
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 async function bootstrap() {
   const app = await NestFactory.create<any>(AppModule, { cors: true });
   app.useGlobalPipes(
