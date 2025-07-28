@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/service/prisma.service';
 import { CreateSolicitacaoDefesaDto } from './dto/create-solicitacao-defesa.dto';
-import { SolicitacaoDefesa, StatusSolicitacao } from '@prisma/client';
+import { Qualificacao, SolicitacaoDefesa, StatusSolicitacao } from '@prisma/client';
 import { UploadService } from 'src/service/upload.service';
 
 @Injectable()
@@ -43,6 +43,57 @@ export class SolicitacaoDefesaService {
       throw new BadRequestException('Orientador não vinculado ao aluno');
     }
 
+    const professoresExternosCriadosOuExistentes: {
+    professor_id: string;
+    suplente: boolean;
+    copia_impressa: boolean;
+  }[] = [];
+
+    for (const membroExterno of dto.professores_membros_externos || []) {
+      // Verifica se já existe um professor com este e-mail
+      let professorExistente = await this.prisma.professor.findFirst({
+        where: {
+          usuario: {
+            email_institucional: membroExterno.email,
+          },
+        },
+        include: {
+          usuario: true,
+        },
+      });
+
+      // Se não existe, cria novo usuário + professor
+      if (!professorExistente) {
+        
+
+        var professorNovo = await this.prisma.professor.create({
+          data: {
+            nome_social: membroExterno.nome,
+            email_membro_externo: membroExterno.email,
+            pertence_uem: false, // ou outro default válido
+            qualificacao: Qualificacao.MESTRADO,
+              cpf: "",
+              formacao_origem: "",
+              titulacao: "",
+              celular: "",
+              area_atuacao: "",
+          },
+        });
+        professoresExternosCriadosOuExistentes.push({
+          professor_id: professorNovo.id,
+          suplente: false,
+          copia_impressa: false,
+        });
+      }else{
+        professoresExternosCriadosOuExistentes.push({
+          professor_id: professorExistente.id,
+          suplente: false,
+          copia_impressa: false,
+        });
+      }
+
+    }
+
     try {
       const solicitacaoDefesaCriada =
         await this.prisma.solicitacaoDefesa.create({
@@ -60,15 +111,28 @@ export class SolicitacaoDefesaService {
             secretaria: { connect: { id: dto.secretaria_id } },
             status: 'PENDENTE',
             professores_banca: {
-              create: dto.professores_banca.map((professor) => ({
-                professor: {
-                  connect: {
-                    id: professor.professor_id,
-                  },
+              create: [
+            // Professores internos
+            ...dto.professores_banca.map((professor) => ({
+              professor: {
+                connect: {
+                  id: professor.professor_id,
                 },
-                suplente: professor.suplente,
-                copia_impressa: professor.copia_impressa,
-              })),
+              },
+              suplente: professor.suplente,
+              copia_impressa: professor.copia_impressa,
+            })),
+            // Professores externos
+            ...professoresExternosCriadosOuExistentes.map((externo) => ({
+              professor: {
+                connect: {
+                  id: externo.professor_id,
+                },
+              },
+              suplente: externo.suplente,
+              copia_impressa: externo.copia_impressa,
+            })),
+          ],
             },
           },
         });
