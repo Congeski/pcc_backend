@@ -1,6 +1,7 @@
 import { Qualificacao } from '@prisma/client';
 import {
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -15,6 +16,13 @@ export class CreateProfessorDto {
   @IsString()
   @IsOptional()
   titulacao: string;
+
+  @IsString()
+  @IsEmail({}, { message: 'Email inválido' })
+  email: string;
+
+  @IsString()
+  departamento: string;
 
   @IsString()
   @IsOptional()

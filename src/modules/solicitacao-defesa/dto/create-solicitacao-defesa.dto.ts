@@ -42,6 +42,9 @@ export class CreateSolicitacaoDefesaDto {
   })
   professores_banca: ProfessorBancaDto[];
 
+  @IsArray()
+  professores_membros_externos: ProfessorMembroExternoBancaDto[];
+
   @IsOptional()
   @IsString()
   cidade?: string;
@@ -111,4 +114,12 @@ class Anexos {
 
   @IsEnum(TipoAnexo)
   tipo: TipoAnexo;
+}
+
+class ProfessorMembroExternoBancaDto {
+  @IsString()
+  nome: string;
+
+  @IsString()
+  email: string;
 }
