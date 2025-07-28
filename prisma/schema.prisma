@@ -73,7 +73,6 @@ model Professor {
   titulacao                 String?
   nome_social               String?
   celular                   String?
-  email_membro_externo      String?
   programa_pos_graduacao_id String?
   aluno_professor           AlunoProfessor[]
   SolicitacaoBancaProfessor SolicitacaoBancaProfessor[]

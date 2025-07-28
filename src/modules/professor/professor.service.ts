@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Professor } from '@prisma/client';
 import { PrismaService } from 'src/service/prisma.service';
 import { CreateProfessorDto } from './dto/create-professor.dto';
@@ -8,38 +8,10 @@ import { UpdateProfessorDto } from './dto/update-professor.dto';
 export class ProfessorService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createProfessorDto: CreateProfessorDto): Promise<HttpStatus> {
-    const email_existe = await this.prisma.usuario.findFirst({
-          where: {
-            email_institucional: createProfessorDto.email,
-          },
-        });
-    if (email_existe) {
-          throw new BadRequestException('Esse email já foi cadastrado!');
-    }    
-    try{
-
-      await this.prisma.usuario.create({
-        data: {
-          email_institucional: createProfessorDto.email,
-          nome_civil: createProfessorDto.nome_social,
-          professor: {
-            create: {
-              qualificacao: createProfessorDto.qualificacao,
-              cpf: createProfessorDto.cpf,
-              formacao_origem: createProfessorDto.formacao_origem,
-              nome_social: createProfessorDto.nome_social,
-              titulacao: createProfessorDto.titulacao,
-              celular: createProfessorDto.celular,
-              area_atuacao: createProfessorDto.area_atuacao,
-            },
-          },
-        },
-      });
-      return HttpStatus.CREATED;
-    } catch (error) {
-      throw new BadRequestException('Erro ao criar professor');
-    }
+  async create(createProfessorDto: CreateProfessorDto): Promise<Professor> {
+    return await this.prisma.professor.create({
+      data: createProfessorDto,
+    });
   }
 
   async findAll(): Promise<Professor[]> {
