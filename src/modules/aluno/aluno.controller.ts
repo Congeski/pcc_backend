@@ -43,10 +43,10 @@ export class AlunoController {
   @Patch('/:id')
   @HttpCode(200)
   async update(
-    @Param('id') id: string,
+    @Param('id') alunoId: string,
     @Body() updateAlunoDto: UpdateAlunoDto,
   ) {
-    return await this.alunoService.update(id, updateAlunoDto);
+    return await this.alunoService.update(alunoId, updateAlunoDto);
   }
 
   @UseGuards(JwtAuthGuard)

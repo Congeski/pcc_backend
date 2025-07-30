@@ -4,10 +4,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { SolicitacaoDefesa, StatusSolicitacao } from '@prisma/client';
 import { PrismaService } from 'src/service/prisma.service';
-import { CreateSolicitacaoDefesaDto } from './dto/create-solicitacao-defesa.dto';
-import { Qualificacao, SolicitacaoDefesa, StatusSolicitacao } from '@prisma/client';
 import { UploadService } from 'src/service/upload.service';
+import { CreateSolicitacaoDefesaDto } from './dto/create-solicitacao-defesa.dto';
 
 @Injectable()
 export class SolicitacaoDefesaService {
@@ -44,14 +44,13 @@ export class SolicitacaoDefesaService {
     }
 
     const professoresExternosCriadosOuExistentes: {
-    professor_id: string;
-    suplente: boolean;
-    copia_impressa: boolean;
-  }[] = [];
+      professor_id: string;
+      suplente: boolean;
+      copia_impressa: boolean;
+    }[] = [];
 
     for (const membroExterno of dto.professores_membros_externos || []) {
-      // Verifica se já existe um professor com este e-mail
-      let professorExistente = await this.prisma.professor.findFirst({
+      const professorExistente = await this.prisma.professor.findFirst({
         where: {
           usuario: {
             email_institucional: membroExterno.email,
@@ -62,21 +61,13 @@ export class SolicitacaoDefesaService {
         },
       });
 
-      // Se não existe, cria novo usuário + professor
       if (!professorExistente) {
-        
-
-        var professorNovo = await this.prisma.professor.create({
+        const professorNovo = await this.prisma.professor.create({
           data: {
             nome_social: membroExterno.nome,
             email_membro_externo: membroExterno.email,
-            pertence_uem: false, // ou outro default válido
-            qualificacao: Qualificacao.MESTRADO,
-              cpf: "",
-              formacao_origem: "",
-              titulacao: "",
-              celular: "",
-              area_atuacao: "",
+            pertence_uem: false,
+            qualificacao: membroExterno.qualificacao,
           },
         });
         professoresExternosCriadosOuExistentes.push({
@@ -84,14 +75,13 @@ export class SolicitacaoDefesaService {
           suplente: false,
           copia_impressa: false,
         });
-      }else{
+      } else {
         professoresExternosCriadosOuExistentes.push({
           professor_id: professorExistente.id,
           suplente: false,
           copia_impressa: false,
         });
       }
-
     }
 
     try {
@@ -112,27 +102,25 @@ export class SolicitacaoDefesaService {
             status: 'PENDENTE',
             professores_banca: {
               create: [
-            // Professores internos
-            ...dto.professores_banca.map((professor) => ({
-              professor: {
-                connect: {
-                  id: professor.professor_id,
-                },
-              },
-              suplente: professor.suplente,
-              copia_impressa: professor.copia_impressa,
-            })),
-            // Professores externos
-            ...professoresExternosCriadosOuExistentes.map((externo) => ({
-              professor: {
-                connect: {
-                  id: externo.professor_id,
-                },
-              },
-              suplente: externo.suplente,
-              copia_impressa: externo.copia_impressa,
-            })),
-          ],
+                ...dto.professores_banca.map((professor) => ({
+                  professor: {
+                    connect: {
+                      id: professor.professor_id,
+                    },
+                  },
+                  suplente: professor.suplente,
+                  copia_impressa: professor.copia_impressa,
+                })),
+                ...professoresExternosCriadosOuExistentes.map((externo) => ({
+                  professor: {
+                    connect: {
+                      id: externo.professor_id,
+                    },
+                  },
+                  suplente: externo.suplente,
+                  copia_impressa: externo.copia_impressa,
+                })),
+              ],
             },
           },
         });
@@ -205,7 +193,7 @@ export class SolicitacaoDefesaService {
   async aprovarRejeitarSolicitacao(
     solicitacaoId: string,
     status: StatusSolicitacao,
-    justificativa?: string,
+    justificativa: string,
   ): Promise<SolicitacaoDefesa> {
     const solicitacao = await this.prisma.solicitacaoDefesa.findUnique({
       where: { id: solicitacaoId },

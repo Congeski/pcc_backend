@@ -1,10 +1,17 @@
-import { ModoApresentacao, StatusSolicitacao, TipoAnexo, TipoDefesa } from '@prisma/client';
+import {
+  ModoApresentacao,
+  Qualificacao,
+  StatusSolicitacao,
+  TipoAnexo,
+  TipoDefesa,
+} from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
@@ -43,6 +50,18 @@ export class CreateSolicitacaoDefesaDto {
   professores_banca: ProfessorBancaDto[];
 
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProfessorMembroExternoBancaDto)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value || [];
+  })
   professores_membros_externos: ProfessorMembroExternoBancaDto[];
 
   @IsOptional()
@@ -56,10 +75,6 @@ export class CreateSolicitacaoDefesaDto {
   @IsOptional()
   @IsString()
   sala?: string;
-
-  @IsOptional()
-  @IsString()
-  justificativa?: string;
 
   @IsOptional()
   @IsEnum(StatusSolicitacao)
@@ -122,4 +137,10 @@ class ProfessorMembroExternoBancaDto {
 
   @IsString()
   email: string;
+
+  @IsString()
+  @IsEnum(Qualificacao, {
+    message: `O campo qualificação deve ser: ${Qualificacao}`,
+  })
+  qualificacao: Qualificacao;
 }

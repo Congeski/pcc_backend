@@ -3,11 +3,12 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { SolicitacaoDefesa } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from './prisma.service';
 
+@Injectable()
 export class UploadService {
   private readonly s3Client: S3Client;
 
@@ -55,25 +56,17 @@ export class UploadService {
     const filePath = `pdf_solicitacao_defesa/${hash}/${sanitizedFileName}`;
 
     try {
-      // const solicitacaoExiste = await this.prisma.solicitacaoDefesa.findFirst({
-      //   where: {
-      //     id: solicitacaoDefesa.id,
-      //     anexo: {
-      //       some: {
-      //         nome_arquivo: sanitizedFileName
-      //       }
-      //     }
-      //   },
-      //   include: {
-      //     anexo: true
-      //   }
-      // });
+      const anexoExiste = await this.prisma.anexo.findFirst({
+        where: {
+          hash: hash,
+          nome_arquivo: sanitizedFileName,
+        },
+      });
 
-      // if (solicitacaoExiste) {
-      //   await this.deleteFile(solicitacaoExiste.anexo., arquivoExiste.nome_arquivo);
-      // }
+      if (anexoExiste) {
+        await this.deleteFile(hash, sanitizedFileName);
+      }
 
-      // Enviar arquivo ao S3
       await this.s3Client.send(
         new PutObjectCommand({
           Bucket: bucket,
@@ -82,6 +75,16 @@ export class UploadService {
           ContentType: file[0].mimetype,
         }),
       );
+
+      await this.prisma.anexo.create({
+        data: {
+          hash: hash,
+          nome_arquivo: sanitizedFileName,
+          url: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${filePath}`,
+          tipo: 'COMPROVANTE_PUBLICACAO',
+          solicitacao_defesa_id: solicitacaoDefesa.id,
+        },
+      });
 
       return {
         url: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${filePath}`,
@@ -102,7 +105,6 @@ export class UploadService {
     const filePath = `pdf_solicitacao_defesa/${hash}/${nomeArquivo}`;
 
     try {
-      // Deletar o arquivo do S3
       const response = await this.s3Client.send(
         new DeleteObjectCommand({
           Bucket: bucket,
@@ -110,10 +112,10 @@ export class UploadService {
         }),
       );
 
-      // Deletar o arquivo da tabela uploadFiles
       await this.prisma.anexo.deleteMany({
         where: {
-          hash,
+          hash: hash,
+          nome_arquivo: nomeArquivo,
         },
       });
 

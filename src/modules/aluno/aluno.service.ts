@@ -84,27 +84,24 @@ export class AlunoService {
     return aluno;
   }
 
-  async update(id: string, updateAlunoDto: UpdateAlunoDto): Promise<object> {
+  async update(
+    id: string,
+    updateAlunoDto: UpdateAlunoDto,
+  ): Promise<HttpStatus> {
     const { orientadorId, coorientadorIds } = updateAlunoDto;
 
-    const usuario = await this.prisma.usuario.findUnique({
+    const alunoExiste = await this.prisma.aluno.findFirst({
       where: { id },
-      include: {
-        aluno: true,
-      },
     });
 
-    if (!usuario || !usuario.aluno) {
+    if (!alunoExiste) {
       throw new NotFoundException(`Aluno não encontrado`);
     }
 
-    const alunoId = usuario.aluno.id;
-
     try {
-      const result = await this.prisma.$transaction(async (prisma) => {
-        // Atualiza os dados do aluno
-        const aluno_atualizado = await prisma.usuario.update({
-          where: { id: usuario.id },
+      await this.prisma.$transaction(async (prisma) => {
+        await prisma.usuario.update({
+          where: { id: alunoExiste.usuario_id },
           data: {
             senha: updateAlunoDto.senha,
             nome_civil: updateAlunoDto.nome_civil,
@@ -135,51 +132,43 @@ export class AlunoService {
           },
         });
 
-        // Se um orientadorId for fornecido, atualiza o vínculo
         if (orientadorId) {
-          // Remove o orientador antigo (se houver)
           await prisma.alunoProfessor.deleteMany({
             where: {
-              aluno_id: alunoId,
+              aluno_id: alunoExiste.id,
               coorientador: false,
             },
           });
-          // Cria o novo vínculo de orientador
           await prisma.alunoProfessor.create({
             data: {
-              aluno_id: alunoId,
+              aluno_id: alunoExiste.id,
               professor_id: orientadorId,
               coorientador: false,
             },
           });
         }
 
-        // Se coorientadorIds for fornecido, atualiza os vínculos
         if (coorientadorIds) {
-          // Remove todos os coorientadores antigos
           await prisma.alunoProfessor.deleteMany({
             where: {
-              aluno_id: alunoId,
+              aluno_id: alunoExiste.id,
               coorientador: true,
             },
           });
 
-          // Adiciona os novos coorientadores, se houver algum
           if (Array.isArray(coorientadorIds) && coorientadorIds.length > 0) {
             await prisma.alunoProfessor.createMany({
               data: coorientadorIds.map((profId) => ({
-                aluno_id: alunoId,
+                aluno_id: alunoExiste.id,
                 professor_id: profId,
                 coorientador: true,
               })),
             });
           }
         }
-
-        return aluno_atualizado;
       });
 
-      return result;
+      return HttpStatus.OK;
     } catch (error) {
       console.error(error);
       throw new BadRequestException(`Erro ao atualizar aluno!`);

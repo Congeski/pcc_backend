@@ -41,7 +41,6 @@ export class CreateProfessorDto {
   formacao_origem: string;
 
   @IsString()
-  @IsOptional()
   nome_social: string;
 
   @IsString()
