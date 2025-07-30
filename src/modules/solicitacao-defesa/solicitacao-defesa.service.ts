@@ -193,7 +193,7 @@ export class SolicitacaoDefesaService {
   async aprovarRejeitarSolicitacao(
     solicitacaoId: string,
     status: StatusSolicitacao,
-    justificativa: string,
+    justificativa?: string,
   ): Promise<SolicitacaoDefesa> {
     const solicitacao = await this.prisma.solicitacaoDefesa.findUnique({
       where: { id: solicitacaoId },
@@ -201,6 +201,12 @@ export class SolicitacaoDefesaService {
 
     if (!solicitacao) {
       throw new NotFoundException('Solicitação de defesa não encontrada');
+    }
+
+    if (solicitacao.status == StatusSolicitacao.REPROVADO && !justificativa) {
+      throw new BadRequestException(
+        'Justificativa é obrigatória para reprovação',
+      );
     }
     return this.prisma.solicitacaoDefesa.update({
       where: { id: solicitacaoId },
