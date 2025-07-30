@@ -1,52 +1,60 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
+  HttpCode,
   Param,
-  Delete,
-  UseGuards,
-  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards
 } from '@nestjs/common';
-import { ProgramaPosGraduacaoService } from './programa-pos-graduacao.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UsuarioIdFromToken } from 'src/decorators/usuarioId.decorator';
 import { CreateProgramaPosGraduacaoDto } from './dto/create-programa-pos-graduacao.dto';
 import { UpdateProgramaPosGraduacaoDto } from './dto/update-programa-pos-graduacao.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ProgramaPosGraduacaoService } from './programa-pos-graduacao.service';
 
-// Protege todas as rotas deste controller, exigindo autenticação JWT
 @UseGuards(JwtAuthGuard)
-@Controller('programa-pos-graduacao') // Define o endpoint base: /programa-pos-graduacao
+@Controller('programa-pos-graduacao')
 export class ProgramaPosGraduacaoController {
   constructor(
     private readonly programaPosGraduacaoService: ProgramaPosGraduacaoService,
   ) {}
 
   @Post()
-  create(@Body() createDto: CreateProgramaPosGraduacaoDto) {
-    return this.programaPosGraduacaoService.create(createDto);
+  @HttpCode(201)
+  async create(
+    @UsuarioIdFromToken() usuarioId: string,
+    @Body() createDto: CreateProgramaPosGraduacaoDto,
+  ) {
+    console.log(usuarioId);
+    return await this.programaPosGraduacaoService.create(usuarioId, createDto);
   }
 
   @Get()
-  findAll() {
-    return this.programaPosGraduacaoService.findAll();
+  @HttpCode(200)
+  async findAll() {
+    return await this.programaPosGraduacaoService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.programaPosGraduacaoService.findOne(id);
+  @Get('/:id')
+  @HttpCode(200)
+  async findOne(@Param('id') id: string) {
+    return await this.programaPosGraduacaoService.findOne(id);
   }
 
-  @Patch(':id')
-  update(
+  @Patch('/:id')
+  @HttpCode(200)
+  async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateProgramaPosGraduacaoDto,
   ) {
-    return this.programaPosGraduacaoService.update(id, updateDto);
+    return await this.programaPosGraduacaoService.update(id, updateDto);
   }
 
-  @Delete(':id')
-  deactivate(@Param('id') id: string) {
-    return this.programaPosGraduacaoService.deactivate(id);
+  @Patch('/:id')
+  @HttpCode(200)
+  async deactivate(@Param('id') id: string) {
+    return await this.programaPosGraduacaoService.deactivate(id);
   }
 }

@@ -1,11 +1,18 @@
-import { IsNotEmpty, IsString, IsEnum, IsBoolean, IsOptional, IsNumber, IsUUID } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEnum,
+  IsBoolean,
+  IsOptional,
+  IsNumber,
+  IsUUID,
+} from 'class-validator';
 import { Qualificacao, ModoApresentacao } from '@prisma/client';
 
 export class CreateProgramaPosGraduacaoDto {
-
   @IsNumber({}, { message: 'O código deve ser um número.' })
   @IsNotEmpty({ message: 'O código não pode estar vazio.' })
-  codigo: number; 
+  codigo: number;
 
   @IsEnum(Qualificacao, { message: 'O tipo de qualificação é inválido.' })
   @IsNotEmpty({ message: 'O tipo não pode estar vazio.' })
@@ -35,8 +42,8 @@ export class CreateProgramaPosGraduacaoDto {
   @IsOptional()
   departamento?: string;
 
-  // Recebemos o ID da secretaria como uma string (UUID)
+  @IsOptional()
   @IsUUID('4', { message: 'O ID da secretaria deve ser um UUID válido.' })
   @IsNotEmpty({ message: 'O ID da secretaria não pode estar vazio.' })
-  secretaria_id: string;
+  secretaria_id?: string;
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/service/prisma.service';
 import { CreateProgramaPosGraduacaoDto } from './dto/create-programa-pos-graduacao.dto';
 import { UpdateProgramaPosGraduacaoDto } from './dto/update-programa-pos-graduacao.dto';
@@ -7,14 +11,27 @@ import { UpdateProgramaPosGraduacaoDto } from './dto/update-programa-pos-graduac
 export class ProgramaPosGraduacaoService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createDto: CreateProgramaPosGraduacaoDto) {
-    return this.prisma.programaPosGraduacao.create({
-      data: createDto,
+  async create(usuarioId: string, createDto: CreateProgramaPosGraduacaoDto) {
+    const secretariaEncontrada = await this.prisma.secretaria.findFirst({
+      where: {
+        usuario_id: usuarioId,
+      },
+    });
+
+    if (!secretariaEncontrada) {
+      throw new BadRequestException('Secretaria não encontrada!');
+    }
+
+    return await this.prisma.programaPosGraduacao.create({
+      data: {
+        ...createDto,
+        secretaria_id: secretariaEncontrada.id,
+      },
     });
   }
 
   async findAll() {
-    return this.prisma.programaPosGraduacao.findMany({
+    return await this.prisma.programaPosGraduacao.findMany({
       where: { status: true },
     });
   }
@@ -30,18 +47,44 @@ export class ProgramaPosGraduacaoService {
   }
 
   async update(id: string, updateDto: UpdateProgramaPosGraduacaoDto) {
-    await this.findOne(id); 
-    return this.prisma.programaPosGraduacao.update({
-      where: { id },
+    const programaPosGraduacaoExiste =
+      await this.prisma.programaPosGraduacao.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!programaPosGraduacaoExiste) {
+      throw new BadRequestException(
+        'Não foi encontrado um programa de pós graduação com esse Id!',
+      );
+    }
+
+    return await this.prisma.programaPosGraduacao.update({
+      where: { id: programaPosGraduacaoExiste.id },
       data: updateDto,
     });
   }
 
   async deactivate(id: string) {
-    await this.findOne(id); 
-    return this.prisma.programaPosGraduacao.update({
-      where: { id },
-      data: { status: false },
+    const programaPosGraduacaoExiste =
+      await this.prisma.programaPosGraduacao.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!programaPosGraduacaoExiste) {
+      throw new BadRequestException(
+        'Não foi encontrado um programa de pós graduação com esse Id!',
+      );
+    }
+
+    return await this.prisma.programaPosGraduacao.update({
+      where: { id: programaPosGraduacaoExiste.id },
+      data: {
+        status: false,
+      },
     });
   }
 }
