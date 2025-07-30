@@ -62,4 +62,8 @@ export class CreateProfessorDto {
   @IsString()
   @IsOptional()
   celular: string;
+
+  @IsString()
+  @IsOptional()
+  email_membro_externo?: string;
 }

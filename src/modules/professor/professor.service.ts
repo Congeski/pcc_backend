@@ -80,7 +80,7 @@ export class ProfessorService {
     
     const professor_existe = await this.prisma.professor.findFirst({
       where: {
-        email_membro_externo: createProfessorDto.email,
+        email_membro_externo: createProfessorDto.email_membro_externo,
       },
     });
     
@@ -98,7 +98,7 @@ export class ProfessorService {
                 celular: createProfessorDto.celular,
                 area_atuacao: createProfessorDto.area_atuacao,
                 pertence_uem: createProfessorDto.pertence_uem,
-                email_membro_externo: createProfessorDto.email,
+                email_membro_externo: createProfessorDto.email_membro_externo,
           },
         });
 

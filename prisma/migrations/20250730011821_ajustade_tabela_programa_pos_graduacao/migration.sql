@@ -6,6 +6,3 @@
 */
 -- AlterTable
 ALTER TABLE "programa_pos_graduacao" ALTER COLUMN "codigo" SET DATA TYPE INTEGER;
-
--- AlterTable
-ALTER TABLE "solicitacao_defesa" ADD COLUMN     "justificativa" TEXT;
