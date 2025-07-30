@@ -90,7 +90,7 @@ model ProgramaPosGraduacao {
   status            Boolean          @default(true)
   tipo              Qualificacao
   categoria         ModoApresentacao
-  codigo            BigInt
+  codigo            Int
   linha_de_pesquisa String
   curso             String
   cidade            String?
