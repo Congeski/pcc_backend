@@ -66,7 +66,7 @@ npm run dev
 # 5. Teste as rotas com Postman
 ```
 
-🙋‍♂️ Contato
+## 🙋‍♂️ Contato
 Desenvolvido pela equipe de backend da disciplina TOP. EM TEC. DE INFORMACAO E COMUN.
 Alunos:
 - Vinicius Congeski
